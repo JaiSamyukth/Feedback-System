@@ -187,9 +187,7 @@ def student_login():
         </form>
         <hr>
         <a href="{{ url_for('admin_login') }}" class="btn btn-light">Staff Page</a>
-        <footer class="mt-4">This site is created and managed by GenrecAI. 
-          Visit our website <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
-        </footer>
+        <footer class="mt-4">These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a></footer>
         <script>
           setTimeout(function() {
             var flash = document.getElementById('flash-messages');
@@ -246,7 +244,10 @@ def admin_login():
           </div>
           <button type="submit" class="btn btn-primary">Login</button>
         </form>
-        <footer class="mt-4"><a href="{{ url_for('student_login') }}">Back to Student Login</a></footer>
+        <footer class="mt-4">
+          <a href="{{ url_for('student_login') }}">Back to Student Login</a>
+          <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
+        </footer>
         <script>
           setTimeout(function(){
             var flash = document.getElementById('flash-messages');
@@ -346,9 +347,7 @@ def admin():
         </form>
         <hr>
         <a href="{{ url_for('student_login') }}" class="btn btn-light">Go to Student Feedback Page</a>
-        <footer class="mt-4">This site is created and managed by GenrecAI. 
-          Visit our website <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
-        </footer>
+        <footer class="mt-4">These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a></footer>
         <script>
           setTimeout(function() {
             var flash = document.getElementById('flash-messages');
@@ -486,8 +485,7 @@ def feedback():
         </form>
         <footer class="mt-4">
           <a href="{{ url_for('student_login') }}" style="color: #fff;">Back to Student Login</a>
-          <p>This site is created and managed by GenrecAI.
-          Visit our website <a href="https://revolvo-ai.netlify.app" target="_blank" style="color: #fff; text-decoration: underline;">revolvo-ai.netlify.app</a></p>
+          <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank" style="color: #fff;">revolvo-ai.netlify.app</a>
         </footer>
         <script>
           setTimeout(function() {
@@ -592,7 +590,10 @@ def hod_login():
           </div>
           <button type="submit" class="btn btn-primary">Login</button>
         </form>
-        <footer class="mt-4"><a href="{{ url_for('student_login') }}">Back to Student Login</a></footer>
+        <footer class="mt-4">
+          <a href="{{ url_for('student_login') }}">Back to Student Login</a>
+          <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
+        </footer>
         <script>
           setTimeout(function(){
             var flash = document.getElementById('flash-messages');
@@ -659,9 +660,13 @@ def hod_select():
               {% endfor %}
             </select>
           </div>
-          <button type="submit" class="btn btn-success">Generate Report</button>
+          <button type="submit" name="action" value="generate" class="btn btn-success">Generate Report</button>
+          <button type="submit" name="action" value="download" class="btn btn-info">Download Report</button>
         </form>
-        <footer class="mt-4"><a href="{{ url_for('hod_login') }}">Back to HOD Login</a></footer>
+        <footer class="mt-4">
+          <a href="{{ url_for('hod_login') }}">Back to HOD Login</a>
+          <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
+        </footer>
         <script>
           setTimeout(function(){
             var flash = document.getElementById('flash-messages');
@@ -674,10 +679,14 @@ def hod_select():
     if request.method == 'POST':
         department = request.form.get('department')
         semester = request.form.get('semester')
+        action = request.form.get('action')
         if not department or not semester:
             flash("Please select both department and semester.", "danger")
         else:
-            return redirect(url_for('hod_report', department=department, semester=semester))
+            if action == 'download':
+                return redirect(url_for('download_report', department=department, semester=semester))
+            else:
+                return redirect(url_for('hod_report', department=department, semester=semester))
     return render_template_string(hod_select_template, departments=departments, semesters=semesters)
 
 @app.route('/hod/report')
@@ -713,20 +722,25 @@ def hod_report():
         report_message = f"<h2>No rating data found for {department} - {semester}.</h2>"
         return report_message
     labels = list(data.keys())
-    averages = list(data.values())
+    averages_list = list(data.values())
     # Generate a neat bar chart
     plt.figure(figsize=(12,8))
-    plt.bar(labels, averages, color='steelblue')
+    bars = plt.bar(labels, averages_list, color='steelblue')
     plt.xlabel("Staff (Subject)", fontsize=14)
     plt.ylabel("Average Rating", fontsize=14)
     plt.title(f"Average Ratings for {department} - {semester}", fontsize=16)
     plt.xticks(rotation=45, ha='right', fontsize=12)
+    # Annotate each bar with its average value
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, height, f'{height:.2f}', ha='center', va='bottom')
     plt.tight_layout()
     img = io.BytesIO()
     plt.savefig(img, format='png')
     img.seek(0)
     graph_url = base64.b64encode(img.getvalue()).decode()
     plt.close()
+    overall_avg = f"{sum(averages_list)/len(averages_list):.2f}" if averages_list else "N/A"
     report_template = """
     <!doctype html>
     <html lang="en">
@@ -740,24 +754,31 @@ def hod_report():
           header, footer { background: #007bff; color: #fff; padding: 15px; text-align: center; }
           footer a { color: #fff; text-decoration: underline; }
           .graph { text-align: center; margin-top: 20px; }
-          .download-btn { margin-top: 20px; }
+          .download-btn { margin: 20px 0; text-align: center; }
         </style>
       </head>
       <body>
         <div class="container">
           <header><h1>Report for {{ department }} - {{ semester }}</h1></header>
+          <!-- Display overall average above the graph -->
+          <div style="text-align: center; font-weight: bold; margin-bottom: 10px;">
+            Overall Average: {{ averages|default('N/A') }}
+          </div>
           <div class="graph">
             <img src="data:image/png;base64,{{ graph_url }}" alt="Report Graph" class="img-fluid">
           </div>
-          <div class="download-btn text-center">
-            <a href="{{ url_for('download_report', department=department, semester=semester) }}" class="btn btn-primary">Download Graph</a>
+          <div class="download-btn">
+            <a href="{{ url_for('download_report', department=department, semester=semester) }}" class="btn btn-primary">Download Report Data</a>
           </div>
-          <footer class="mt-4"><a href="{{ url_for('hod_select') }}">Back to Report Selection</a></footer>
+          <footer class="mt-4">
+            <p>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a></p>
+            <a href="{{ url_for('hod_select') }}">Back to Report Selection</a>
+          </footer>
         </div>
       </body>
     </html>
     """
-    return render_template_string(report_template, department=department, semester=semester, graph_url=graph_url)
+    return render_template_string(report_template, department=department, semester=semester, graph_url=graph_url, averages=overall_avg)
 
 @app.route('/hod/download_report')
 def download_report():
@@ -766,44 +787,37 @@ def download_report():
     if not department or not semester:
         flash("Missing department or semester selection.", "danger")
         return redirect(url_for('hod_select'))
-    normalized_input_semester = semester.strip()
-    if normalized_input_semester.lower().startswith("semester"):
-        normalized_input_semester = normalized_input_semester[len("semester"):].strip()
+    
+    # First ensure the mainrating file is up to date
     update_mainratings()
-    data = {}
-    if os.path.exists(MAINRATING_FILE):
-        with open(MAINRATING_FILE, newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                dep = row.get('department', '').strip()
-                sem = row.get('semester', '').strip()
-                if sem.lower().startswith("semester"):
-                    sem = sem[len("semester"):].strip()
-                if dep == department.strip() and sem == normalized_input_semester:
-                    key = f"{row.get('staff').strip()} ({row.get('subject').strip()})"
-                    try:
-                        overall = float(row.get('overall_average'))
-                    except (ValueError, TypeError):
-                        continue
-                    data[key] = overall
-    if not data:
-        flash("No rating data found for report.", "danger")
+    
+    try:
+        # Read directly from mainrating.csv in the same directory as app.py
+        filepath = os.path.join(os.path.dirname(__file__), 'mainrating.csv')
+        if not os.path.exists(filepath):
+            flash("Report data file not found.", "danger")
+            return redirect(url_for('hod_select'))
+            
+        with open(filepath, 'r', encoding='utf-8') as f:
+            csv_data = f.read()
+            
+        # Create a sanitized filename
+        safe_department = department.replace(' ', '_').replace('/', '_')
+        safe_semester = semester.replace(' ', '_').replace('/', '_')
+        filename = f"mainrating_{safe_department}_{safe_semester}.csv"
+        
+        # Return the file as a download
+        return app.response_class(
+            csv_data,
+            mimetype='text/csv',
+            headers={
+                "Content-Disposition": f"attachment;filename={filename}",
+                "Content-Type": "text/csv; charset=utf-8"
+            }
+        )
+    except Exception as e:
+        flash(f"Error downloading report: {str(e)}", "danger")
         return redirect(url_for('hod_select'))
-    labels = list(data.keys())
-    averages = list(data.values())
-    plt.figure(figsize=(12,8))
-    plt.bar(labels, averages, color='steelblue')
-    plt.xlabel("Staff (Subject)", fontsize=14)
-    plt.ylabel("Average Rating", fontsize=14)
-    plt.title(f"Average Ratings for {department} - {semester}", fontsize=16)
-    plt.xticks(rotation=45, ha='right', fontsize=12)
-    plt.tight_layout()
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plt.close()
-    return app.response_class(img.getvalue(), mimetype='image/png',
-                              headers={"Content-Disposition": "attachment;filename=report.png"})
 
 if __name__ == '__main__':
     # Create CSV files if they don't exist
@@ -822,3 +836,4 @@ if __name__ == '__main__':
                 writer = csv.writer(f)
                 writer.writerow(headers)
     app.run(debug=True)
+
