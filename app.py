@@ -689,6 +689,8 @@ def hod_select():
                 return redirect(url_for('hod_report', department=department, semester=semester))
     return render_template_string(hod_select_template, departments=departments, semesters=semesters)
 
+# ... (Keep all previous code the same until the hod_report function)
+
 @app.route('/hod/report')
 def hod_report():
     department = request.args.get('department')
@@ -696,11 +698,11 @@ def hod_report():
     if not department or not semester:
         flash("Missing department or semester selection.", "danger")
         return redirect(url_for('hod_select'))
-    # Normalize selected semester (e.g., "Semester 4" -> "4")
+    
     normalized_input_semester = semester.strip()
     if normalized_input_semester.lower().startswith("semester"):
         normalized_input_semester = normalized_input_semester[len("semester"):].strip()
-    # Update mainrating.csv from ratings.csv
+    
     update_mainratings()
     data = {}
     if os.path.exists(MAINRATING_FILE):
@@ -718,29 +720,59 @@ def hod_report():
                     except (ValueError, TypeError):
                         continue
                     data[key] = overall
+    
     if not data:
         report_message = f"<h2>No rating data found for {department} - {semester}.</h2>"
         return report_message
+    
     labels = list(data.keys())
+    # Wrap long labels (staff name and subject)
+    import textwrap
+    labels = [textwrap.fill(label, width=15) for label in labels]
     averages_list = list(data.values())
-    # Generate a neat bar chart
-    plt.figure(figsize=(12,8))
-    bars = plt.bar(labels, averages_list, color='steelblue')
-    plt.xlabel("Staff (Subject)", fontsize=14)
-    plt.ylabel("Average Rating", fontsize=14)
-    plt.title(f"Average Ratings for {department} - {semester}", fontsize=16)
-    plt.xticks(rotation=45, ha='right', fontsize=12)
-    # Annotate each bar with its average value
+    
+    # Create improved horizontal bar chart
+    if 'seaborn' in plt.style.available:
+        plt.style.use('seaborn')
+    fig, ax = plt.subplots(figsize=(14, 8))
+    
+    # Create color gradient based on rating values
+    colors = plt.cm.viridis([x/10 for x in averages_list])
+    
+    bars = ax.barh(labels, averages_list, color=colors, edgecolor='black')
+    
+    # Customize appearance
+    ax.set_xlabel('Average Rating', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Staff (Subject)', fontsize=12, fontweight='bold')
+    ax.set_title(f'Average Ratings - {department} - Semester {normalized_input_semester}\n',
+                 fontsize=16, fontweight='bold', pad=20)
+    
+    # Set x-axis limits and ticks
+    ax.set_xlim(0, 10)
+    ax.set_xticks(range(0, 11))
+    ax.xaxis.set_tick_params(labelsize=10)
+    ax.yaxis.set_tick_params(labelsize=10)
+    
+    # Add grid
+    ax.grid(True, axis='x', linestyle='--', alpha=0.7)
+    
+    # Add value labels on bars
     for bar in bars:
-        height = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2, height, f'{height:.2f}', ha='center', va='bottom')
+        width = bar.get_width()
+        ax.text(width + 0.1, bar.get_y() + bar.get_height()/2,
+                f'{width:.2f}',
+                va='center', ha='left', fontsize=10)
+    
     plt.tight_layout()
+    
     img = io.BytesIO()
-    plt.savefig(img, format='png')
+    plt.savefig(img, format='png', bbox_inches='tight', dpi=100)
     img.seek(0)
     graph_url = base64.b64encode(img.getvalue()).decode()
     plt.close()
+    
     overall_avg = f"{sum(averages_list)/len(averages_list):.2f}" if averages_list else "N/A"
+    
     report_template = """
     <!doctype html>
     <html lang="en">
@@ -749,37 +781,69 @@ def hod_report():
         <title>Report for {{ department }} - {{ semester }}</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <style>
-          body { background: #f0f8ff; margin: 0; padding: 0; }
-          .container { padding: 15px; }
-          header, footer { background: #007bff; color: #fff; padding: 15px; text-align: center; }
-          footer a { color: #fff; text-decoration: underline; }
-          .graph { text-align: center; margin-top: 20px; }
-          .download-btn { margin: 20px 0; text-align: center; }
+          body { background: #f8f9fa; margin: 0; padding: 20px 0; }
+          .header-container { max-width: 1200px; margin: 0 auto; }
+          .graph-container { max-width: 1200px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          .report-title { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+          .overall-average { 
+              text-align: center; 
+              font-size: 1.4rem; 
+              margin: 20px 0;
+              padding: 10px;
+              background: #007bff;
+              color: white;
+              border-radius: 5px;
+              max-width: 300px;
+              margin-left: auto;
+              margin-right: auto;
+          }
+          .download-btn {
+              text-align: center;
+              margin: 20px 0;
+          }
+          footer {
+              text-align: center;
+              margin-top: 30px;
+              padding: 20px;
+              color: #6c757d;
+          }
         </style>
       </head>
       <body>
-        <div class="container">
-          <header><h1>Report for {{ department }} - {{ semester }}</h1></header>
-          <!-- Display overall average above the graph -->
-          <div style="text-align: center; font-weight: bold; margin-bottom: 10px;">
-            Overall Average: {{ averages|default('N/A') }}
+        <div class="header-container">
+          <h1 class="report-title">Faculty Performance Report</h1>
+          <div class="overall-average">
+            Overall Department Average: {{ averages }}
           </div>
-          <div class="graph">
-            <img src="data:image/png;base64,{{ graph_url }}" alt="Report Graph" class="img-fluid">
-          </div>
-          <div class="download-btn">
-            <a href="{{ url_for('download_report', department=department, semester=semester) }}" class="btn btn-primary">Download Report Data</a>
-          </div>
-          <footer class="mt-4">
-            <p>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a></p>
-            <a href="{{ url_for('hod_select') }}">Back to Report Selection</a>
-          </footer>
         </div>
+        
+        <div class="graph-container">
+          <img src="data:image/png;base64,{{ graph_url }}" alt="Report Graph" class="img-fluid">
+        </div>
+        
+        <div class="download-btn">
+          <a href="{{ url_for('download_report', department=department, semester=semester) }}" class="btn btn-primary btn-lg">
+            Download Full Report Data
+          </a>
+        </div>
+        
+        <footer>
+          <p>Report generated on {{ date }} | These site is Created and Managed by GenrecAI</p>
+          <a href="{{ url_for('hod_select') }}" class="btn btn-outline-secondary">Back to Report Selection</a>
+        </footer>
       </body>
     </html>
     """
-    return render_template_string(report_template, department=department, semester=semester, graph_url=graph_url, averages=overall_avg)
+    
+    from datetime import datetime
+    return render_template_string(report_template, 
+                                 department=department,
+                                 semester=semester,
+                                 graph_url=graph_url,
+                                 averages=overall_avg,
+                                 date=datetime.now().strftime("%Y-%m-%d %H:%M"))
 
+# ... (Keep the rest of the code the same)
 @app.route('/hod/download_report')
 def download_report():
     department = request.args.get('department')
