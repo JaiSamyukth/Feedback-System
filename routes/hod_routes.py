@@ -118,19 +118,30 @@ def hod_report():
                 dep = row.get('department', '').strip()
                 sem = normalize_semester(row.get('semester', ''))
                 if dep == department.strip() and sem == normalized_input_semester:
-                    key = f"{row.get('staff').strip()} ({row.get('subject').strip()})"
+                    staff_name = row.get('staff').strip()
+                    subject_name = row.get('subject').strip()
+                    key = f"{staff_name} ({subject_name})"
+                    
                     try:
                         overall = float(row.get('overall_average'))
-                        data[key] = overall
+                        data[key] = {
+                            'staff': staff_name,
+                            'subject': subject_name,
+                            'overall_average': row.get('overall_average'),
+                            'overall_float': overall
+                        }
+                        # Add individual question averages
+                        for i in range(1, 11):
+                            data[key][f'q{i}_avg'] = row.get(f'q{i}_avg', '0.00')
                     except (ValueError, TypeError):
                         continue
 
     if not data:
         return f"<h2>No rating data found for {department} - {semester}.</h2>"
 
-    labels = list(data.keys())
-    labels = [textwrap.fill(label, width=15) for label in labels]
-    averages_list = list(data.values())
+    # Prepare data for graph
+    labels = [textwrap.fill(key, width=15) for key in data.keys()]
+    averages_list = [item['overall_float'] for item in data.values()]
 
     plt.switch_backend('Agg')  # Use non-interactive backend
     
@@ -164,12 +175,16 @@ def hod_report():
 
     overall_avg = f"{sum(averages_list)/len(averages_list):.2f}" if averages_list else "N/A"
 
+    # Convert data dict values to list for template
+    detailed_ratings = list(data.values())
+    
     return render_template('hod_report.html',
                          department=department,
                          semester=semester,
                          graph_url=graph_url,
                          averages=overall_avg,
-                         date=datetime.now().strftime("%Y-%m-%d %H:%M"))
+                         date=datetime.now().strftime("%Y-%m-%d %H:%M"),
+                         detailed_ratings=detailed_ratings)
 
 @hod_bp.route('/hod/download_report')
 def download_report():
