@@ -345,6 +345,39 @@ def admin():
           </datalist>
           <button type="submit" class="btn btn-primary">Save Mappings</button>
         </form>
+        
+        <!-- New form for adding students -->
+        <hr>
+        <h3>Add Students</h3>
+        <form id="addStudentsForm" action="/addStudents" method="POST">
+          <div class="form-group">
+            <label for="studentDept">Department:</label>
+            <select class="form-control" name="department" id="studentDept" required>
+              {% for dept in departments %}
+                <option value="{{ dept }}">{{ dept }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="studentSem">Semester:</label>
+            <select class="form-control" name="semester" id="studentSem" required>
+              {% for sem in semesters %}
+                <option value="{{ sem }}">{{ sem }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="startReg">Start Registration Number:</label>
+            <input type="text" class="form-control" name="startReg" id="startReg" required>
+          </div>
+          <div class="form-group">
+            <label for="endReg">End Registration Number:</label>
+            <input type="text" class="form-control" name="endReg" id="endReg" required>
+          </div>
+          <button type="submit" class="btn btn-success">Add Students</button>
+        </form>
+        <!-- End new form -->
+        
         <hr>
         <a href="{{ url_for('student_login') }}" class="btn btn-light">Go to Student Feedback Page</a>
         <footer class="mt-4">These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a></footer>
@@ -379,6 +412,69 @@ def admin():
                                   semesters=semesters,
                                   staffs=staffs,
                                   subjects=subjects)
+
+# New route for adding students to student.csv
+@app.route('/addStudents', methods=['POST'])
+def add_students():
+    department = request.form.get('department')
+    semester = request.form.get('semester')
+    start_reg = request.form.get('startReg')
+    end_reg = request.form.get('endReg')
+    if not (department and semester and start_reg and end_reg):
+        flash("All fields are required for adding students.", "danger")
+        return redirect(url_for('admin'))
+    
+    try:
+        start_num = int(start_reg)
+        end_num = int(end_reg)
+    except ValueError:
+        flash("Registration numbers must be numeric.", "danger")
+        return redirect(url_for('admin'))
+    
+    if start_num > end_num:
+        flash("Start registration number must be less than or equal to end registration number.", "danger")
+        return redirect(url_for('admin'))
+        
+    if (end_num - start_num) > 100:
+        flash("Difference between start and end registration numbers is too high. Please check again.", "danger")
+        return redirect(url_for('admin'))
+    
+    # Extract numeric semester (e.g., from 'Semester 4' or '4')
+    sem_clean = semester.strip().split()[-1]
+    
+    # Read existing records (if any)
+    records = []
+    if os.path.exists(STUDENT_FILE):
+        import csv
+        with open(STUDENT_FILE, newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                records.append(row)
+    
+    # Determine new registration numbers to be added
+    new_regs = {str(reg) for reg in range(start_num, end_num + 1)}
+    # Remove any duplicates in existing records
+    filtered_records = [row for row in records if row.get('registerno') not in new_regs]
+    
+    # Append new records
+    for reg in range(start_num, end_num + 1):
+        filtered_records.append({
+            'registerno': str(reg),
+            'department': department.strip(),
+            'semester': sem_clean
+        })
+    
+    # Write updated records back to student.csv
+    import csv
+    with open(STUDENT_FILE, 'w', newline='', encoding='utf-8') as f:
+        fieldnames = ['registerno', 'department', 'semester']
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in filtered_records:
+            writer.writerow(row)
+    
+    flash(f"Students added/updated successfully ({start_num} to {end_num}).", "success")
+    return redirect(url_for('admin'))
 
 @app.route('/feedback', methods=['GET', 'POST'])
 def feedback():
@@ -931,70 +1027,5 @@ if __name__ == '__main__':
             with open(file, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
                 writer.writerow(headers)
-
-
-
-
-
-
-
-
-
-                
-
-
-
-
-
-
-
-
-                
-
-
-
-
-
-
-
-
-                
-
-
-
-
-
-
-
-
-                
-
-
-
-
-
-
-
-
-                
-
-
-
-
-
-
-
-
-                
-
-
-
-
-
-
-
-
-                
-
-                
+       
     app.run(debug=True)
