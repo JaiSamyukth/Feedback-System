@@ -106,6 +106,7 @@ def feedback():
         error_flag = False
 
         for idx, mapping in enumerate(mappings):
+            ratings_dict = {}
             ratings = []
             for q in range(1, 11):
                 key = f"rating-{idx}-{q}"
@@ -121,19 +122,22 @@ def feedback():
                     error_flag = True
                     break
                 ratings.append(score)
+                ratings_dict[f'q{q}'] = f"{score:.2f}"
 
             if error_flag:
                 break
 
             average = sum(ratings) / len(ratings)
-            rating_rows.append({
+            row_data = {
                 'registerno': registerno,
                 'department': department,
                 'semester': semester,
                 'staff': mapping['staff'],
                 'subject': mapping['subject'],
                 'average': f"{average:.2f}"
-            })
+            }
+            row_data.update(ratings_dict)  # Add individual question ratings
+            rating_rows.append(row_data)
 
         if error_flag:
             return redirect(url_for('feedback', department=department, 

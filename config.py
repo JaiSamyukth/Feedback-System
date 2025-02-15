@@ -15,7 +15,7 @@ REQUIRED_FILES = {
     STAFFS_FILE: ['Staff'],  # Changed from 'staff_name' to match actual header
     SUBJECTS_FILE: ['Subject'],
     ADMIN_MAPPING_FILE: ['department', 'semester', 'staff', 'subject'],
-    RATING_FILE: ['registerno', 'department', 'semester', 'staff', 'subject', 'average'],
+    RATING_FILE: ['registerno', 'department', 'semester', 'staff', 'subject', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'average'],
     STUDENT_FILE: ['registerno', 'department', 'semester']
 }
 

@@ -67,7 +67,8 @@ def append_ratings(rating_rows):
     """Append rating rows (list of dicts) to RATING_FILE."""
     file_exists = os.path.exists(RATING_FILE)
     with open(RATING_FILE, 'a', newline='', encoding='utf-8') as f:
-        fieldnames = ['registerno', 'department', 'semester', 'staff', 'subject', 'average']
+        fieldnames = ['registerno', 'department', 'semester', 'staff', 'subject', 
+                     'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'average']
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         if not file_exists:
             writer.writeheader()
@@ -100,6 +101,7 @@ def update_mainratings():
     """
     Aggregate ratings from RATING_FILE grouped by department, semester, staff, and subject,
     and write the aggregated (overall average) data to MAINRATING_FILE.
+    Also calculates per-question averages.
     """
     aggregated = {}
     if os.path.exists(RATING_FILE):
@@ -110,27 +112,58 @@ def update_mainratings():
                 sem = row.get('semester', '').strip()
                 staff = row.get('staff', '').strip()
                 subject = row.get('subject', '').strip()
+                key = (dep, sem, staff, subject)
+                
+                # Initialize if this is the first rating for this combination
+                if key not in aggregated:
+                    aggregated[key] = {
+                        'q_sums': [0.0] * 10,  # Sum for each question
+                        'count': 0,  # Number of ratings
+                        'total_avg': 0.0  # Running sum of averages
+                    }
+                
+                # Add individual question ratings
+                for i in range(1, 11):
+                    try:
+                        q_val = float(row.get(f'q{i}', 0))
+                        aggregated[key]['q_sums'][i-1] += q_val
+                    except (ValueError, TypeError):
+                        continue
+                
                 try:
-                    rating = float(row.get('average'))
+                    avg = float(row.get('average', 0))
+                    aggregated[key]['total_avg'] += avg
+                    aggregated[key]['count'] += 1
                 except (ValueError, TypeError):
                     continue
-                key = (dep, sem, staff, subject)
-                aggregated.setdefault(key, []).append(rating)
     
     with open(MAINRATING_FILE, 'w', newline='', encoding='utf-8') as f:
-        fieldnames = ['department', 'semester', 'staff', 'subject', 'overall_average']
+        fieldnames = ['department', 'semester', 'staff', 'subject', 'q1_avg', 'q2_avg', 
+                    'q3_avg', 'q4_avg', 'q5_avg', 'q6_avg', 'q7_avg', 'q8_avg', 'q9_avg', 
+                    'q10_avg', 'overall_average']
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for key, ratings in aggregated.items():
+        
+        for key, data in aggregated.items():
             dep, sem, staff, subject = key
-            overall_avg = sum(ratings) / len(ratings)
-            writer.writerow({
-                'department': dep,
-                'semester': sem,
-                'staff': staff,
-                'subject': subject,
-                'overall_average': f"{overall_avg:.2f}"
-            })
+            count = data['count']
+            if count > 0:
+                row_data = {
+                    'department': dep,
+                    'semester': sem,
+                    'staff': staff,
+                    'subject': subject,
+                }
+                # Calculate per-question averages
+                for i in range(10):
+                    q_avg = data['q_sums'][i] / count
+                    row_data[f'q{i+1}_avg'] = f"{q_avg:.2f}"
+                
+                # Calculate overall average
+                overall_avg = data['total_avg'] / count
+                row_data['overall_average'] = f"{overall_avg:.2f}"
+                
+                writer.writerow(row_data)
 
 def normalize_semester(semester):
     """Normalize semester string by removing 'semester' prefix if present."""
