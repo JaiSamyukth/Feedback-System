@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
+from routes.hod_routes import hod_bp
 
 from utils import (
     read_csv_as_list, load_admin_mapping, update_admin_mappings,
@@ -16,6 +17,7 @@ from config import (
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure key in production
+app.register_blueprint(hod_bp)
 
 @app.route('/', methods=['GET', 'POST'])
 def student_login():
