@@ -1,2 +1,4 @@
 admin_mapping.csv
-venv/
+.venv/
+history/
+__pycache__

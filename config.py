@@ -10,10 +10,10 @@ MAINRATING_FILE = 'mainrating.csv'  # New aggregated ratings file
 
 # Required CSV files and their headers
 REQUIRED_FILES = {
-    DEPARTMENTS_FILE: ['department'],
-    SEMESTERS_FILE: ['semester'],
+    DEPARTMENTS_FILE: ['Department'],
+    SEMESTERS_FILE: ['Semester'],
     STAFFS_FILE: ['Staff'],  # Changed from 'staff_name' to match actual header
-    SUBJECTS_FILE: ['subject_name'],
+    SUBJECTS_FILE: ['Subject'],
     ADMIN_MAPPING_FILE: ['department', 'semester', 'staff', 'subject'],
     RATING_FILE: ['registerno', 'department', 'semester', 'staff', 'subject', 'average'],
     STUDENT_FILE: ['registerno', 'department', 'semester']
