@@ -40,8 +40,19 @@
                 {% endfor %}
             </select>
         </div>
-        <button type="submit" name="action" value="generate" class="btn btn-success">Generate Report</button>
-        <button type="submit" name="action" value="download" class="btn btn-info">Download Report</button>
+        <div class="btn-group">
+            <button type="submit" name="action" value="generate" class="btn btn-success">Generate Report</button>
+        </div>
+    </form>
+    
+    <div class="mt-4 text-center d-flex justify-content-center gap-3">
+        <form method="post">
+            <button type="submit" name="action" value="download" class="btn btn-info">Download Complete Report</button>
+        </form>
+        <form method="post">
+            <button type="submit" name="action" value="archive" class="btn btn-warning" onclick="return confirm('This will archive all current data. Are you sure?')">Save Changes & Discard</button>
+        </form>
+    </div>
     </form>
     <footer class="mt-4">
         <a href="{{ url_for('hod.hod_login') }}">Back to HOD Login</a>
