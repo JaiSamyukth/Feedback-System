@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Select Report - HOD</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background: #f0f8ff; }
+        header, footer { background: #007bff; color: #fff; padding: 15px; text-align: center; }
+        footer a { color: #fff; text-decoration: underline; }
+    </style>
+</head>
+<body class="container mt-4">
+    <header><h1>Select Department & Semester</h1></header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <form method="post">
+        <div class="form-group">
+            <label>Department:</label>
+            <select class="form-control" name="department" required>
+                <option value="">--Select Department--</option>
+                {% for dept in departments %}
+                    <option value="{{ dept }}">{{ dept }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Semester:</label>
+            <select class="form-control" name="semester" required>
+                <option value="">--Select Semester--</option>
+                {% for sem in semesters %}
+                    <option value="{{ sem }}">{{ sem }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" name="action" value="generate" class="btn btn-success">Generate Report</button>
+        <button type="submit" name="action" value="download" class="btn btn-info">Download Report</button>
+    </form>
+    <footer class="mt-4">
+        <a href="{{ url_for('hod.hod_login') }}">Back to HOD Login</a>
+        <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
+    </footer>
+    <script>
+        setTimeout(function(){
+            var flash = document.getElementById('flash-messages');
+            if (flash) { flash.style.display = 'none'; }
+        }, 3000);
+    </script>
+</body>
+</html>

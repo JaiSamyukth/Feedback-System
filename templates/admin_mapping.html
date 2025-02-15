@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Staff - Feedback App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background: #f0f8ff; }
+        header, footer { background: #007bff; color: #fff; padding: 15px; text-align: center; }
+        footer a { color: #fff; text-decoration: underline; }
+    </style>
+</head>
+<body class="container mt-4">
+    <header><h1>VSB Engineering College - Staff Mapping</h1></header>
+    <h2 class="mt-4">Staff Page</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <form method="post">
+        <div class="form-group">
+            <label>Department:</label>
+            <select class="form-control" name="department" required>
+                {% for dept in departments %}
+                    <option value="{{ dept }}">{{ dept }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Semester:</label>
+            <select class="form-control" name="semester" required>
+                {% for sem in semesters %}
+                    <option value="{{ sem }}">{{ sem }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <h3>Enter Staff – Subject Mappings</h3>
+        <p>You can add multiple rows. (Leave blank rows to ignore.)</p>
+        <table class="table table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>Staff</th>
+                    <th>Subject</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in range(10) %}
+                    <tr>
+                        <td><input class="form-control" name="staff" list="staffs" placeholder="Search Staff"></td>
+                        <td><input class="form-control" name="subject" list="subjects" placeholder="Search Subject"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <datalist id="staffs">
+            {% for s in staffs %}
+                <option value="{{ s }}">
+            {% endfor %}
+        </datalist>
+        <datalist id="subjects">
+            {% for sub in subjects %}
+                <option value="{{ sub }}">
+            {% endfor %}
+        </datalist>
+        <button type="submit" class="btn btn-primary">Save Mappings</button>
+    </form>
+    <hr>
+    <a href="{{ url_for('student.student_login') }}" class="btn btn-light">Go to Student Feedback Page</a>
+    <footer class="mt-4">These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a></footer>
+    <script>
+        setTimeout(function() {
+            var flash = document.getElementById('flash-messages');
+            if (flash) { flash.style.display = 'none'; }
+        }, 3000);
+    </script>
+</body>
+</html>

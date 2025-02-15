@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Report for {{ department }} - {{ semester }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background: #f8f9fa; margin: 0; padding: 20px 0; }
+        .header-container { max-width: 1200px; margin: 0 auto; }
+        .graph-container { 
+            max-width: 1200px; 
+            margin: 20px auto; 
+            background: white; 
+            padding: 20px 0; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .report-title { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+        .overall-average {
+            text-align: center;
+            font-size: 1.4rem;
+            margin: 20px 0;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .action-buttons {
+            text-align: center;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1 class="report-title">Faculty Performance Report</h1>
+        <div class="overall-average">
+            Overall Department Average: {{ averages }}
+        </div>
+    </div>
+
+    <div class="graph-container">
+        <img src="data:image/png;base64,{{ graph_url }}" alt="Report Graph" class="img-fluid">
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('hod.download_report', department=department, semester=semester) }}" class="btn btn-primary btn-lg">
+            Download Report Data (CSV)
+        </a>
+        <form action="{{ url_for('hod.archive_data') }}" method="post" style="display: inline;">
+            <input type="hidden" name="department" value="{{ department }}">
+            <input type="hidden" name="semester" value="{{ semester }}">
+            <button type="submit" class="btn btn-warning btn-lg" onclick="return confirm('This will archive current data and reset the system. Are you sure?')">
+                Save All Changes & Discard
+            </button>
+        </form>
+    </div>
+
+    <footer>
+        <p>Report generated on {{ date }} | These site is Created and Managed by GenrecAI</p>
+        <a href="{{ url_for('hod.hod_select') }}" class="btn btn-outline-secondary">Back to Report Selection</a>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Staff Login - Feedback App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background: #f0f8ff; }
+        header, footer { background: #007bff; color: #fff; padding: 15px; text-align: center; }
+        footer a { color: #fff; text-decoration: underline; }
+    </style>
+</head>
+<body class="container mt-4">
+    <header><h1>Staff Login</h1></header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <form method="post">
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" class="form-control" name="password" placeholder="Enter Staff password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    <footer class="mt-4">
+        <a href="{{ url_for('student.student_login') }}">Back to Student Login</a>
+        <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
+    </footer>
+    <script>
+        setTimeout(function(){
+            var flash = document.getElementById('flash-messages');
+            if (flash) { flash.style.display = 'none'; }
+        }, 3000);
+    </script>
+</body>
+</html>

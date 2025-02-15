@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Student Login - Feedback App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background: #f0f8ff; }
+        header, footer { background: #007bff; color: #fff; padding: 15px; text-align: center; }
+        footer a { color: #fff; text-decoration: underline; }
+    </style>
+</head>
+<body class="container mt-4">
+    <header><h1>VSB Engineering College</h1></header>
+    <h2 class="mt-4">Student Login</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <form method="post">
+        <div class="form-group">
+            <label>Registration Number:</label>
+            <input type="text" class="form-control" name="registerno" placeholder="Enter your registration number" required>
+        </div>
+        <button type="submit" class="btn btn-success">Proceed to Feedback</button>
+    </form>
+    <hr>
+    <a href="{{ url_for('admin.admin_login') }}" class="btn btn-light">Staff Page</a>
+    <footer class="mt-4">These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a></footer>
+    <script>
+        setTimeout(function() {
+            var flash = document.getElementById('flash-messages');
+            if (flash) { flash.style.display = 'none'; }
+        }, 3000);
+    </script>
+</body>
+</html>
