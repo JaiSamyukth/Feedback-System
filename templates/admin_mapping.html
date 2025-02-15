@@ -70,7 +70,36 @@
         <button type="submit" class="btn btn-primary">Save Mappings</button>
     </form>
     <hr>
-    <a href="{{ url_for('student.student_login') }}" class="btn btn-light">Go to Student Feedback Page</a>
+    <h3>Add Students</h3>
+    <form id="addStudentsForm" action="{{ url_for('add_students') }}" method="POST">
+        <div class="form-group">
+            <label for="studentDept">Department:</label>
+            <select class="form-control" name="department" id="studentDept" required>
+                {% for dept in departments %}
+                    <option value="{{ dept }}">{{ dept }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="studentSem">Semester:</label>
+            <select class="form-control" name="semester" id="studentSem" required>
+                {% for sem in semesters %}
+                    <option value="{{ sem }}">{{ sem }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="startReg">Start Registration Number:</label>
+            <input type="text" class="form-control" name="startReg" id="startReg" required>
+        </div>
+        <div class="form-group">
+            <label for="endReg">End Registration Number:</label>
+            <input type="text" class="form-control" name="endReg" id="endReg" required>
+        </div>
+        <button type="submit" class="btn btn-success">Add Students</button>
+    </form>
+    <hr>
+    <a href="{{ url_for('student_login') }}" class="btn btn-light">Go to Student Feedback Page</a>
     <footer class="mt-4">These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a></footer>
     <script>
         setTimeout(function() {

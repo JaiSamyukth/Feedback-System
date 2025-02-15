@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Feedback for {{ department }} - {{ semester }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background: #f0f8ff; }
+        header, footer { background: #007bff; color: #fff; padding: 15px; text-align: center; }
+        .rating-table th, .rating-table td { text-align: center; vertical-align: middle; }
+        .questions-box { border: 1px solid #007bff; padding: 1rem; margin-top: 1.5rem; border-radius: 5px; background: #fff; }
+        .table-responsive { max-height: 60vh; overflow-y: auto; }
+        select.form-control { min-width: 80px; height: 45px; font-size: 16px; color: #000; }
+    </style>
+</head>
+<body class="container-fluid mt-4">
+    <header><h1>VSB Engineering College</h1></header>
+    <h2 class="mt-4 text-center">Feedback for {{ department }} - {{ semester }}</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    <form method="post" id="feedbackForm">
+        <div class="table-responsive">
+            <table class="table table-bordered rating-table">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Staff Name</th>
+                        <th>Subject</th>
+                        {% for q in range(1, 11) %}
+                            <th>Q{{ q }}</th>
+                        {% endfor %}
+                        <th>Average</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mapping in mappings %}
+                        {% set idx = loop.index0 %}
+                        <tr>
+                            <td>{{ mapping.staff }}</td>
+                            <td>{{ mapping.subject }}</td>
+                            {% for q in range(1, 11) %}
+                                <td>
+                                    <select class="form-control" id="rating-{{ idx }}-{{ q }}"
+                                            name="rating-{{ idx }}-{{ q }}" required
+                                            onchange="updateAverage({{ idx }})">
+                                        <option value="">--</option>
+                                        {% for i in range(1, 11) %}
+                                            <option value="{{ i }}">{{ i }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                            {% endfor %}
+                            <td id="avg-{{ idx }}">0</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="questions-box">
+            <h5>Questions</h5>
+            <ol>
+                {% for question in questions %}
+                    <li>{{ question }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+        </div>
+    </form>
+    <footer class="mt-4">
+        <a href="{{ url_for('student_login') }}" style="color: #fff;">Back to Student Login</a>
+        <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank" style="color: #fff;">revolvo-ai.netlify.app</a>
+    </footer>
+    <script>
+        setTimeout(function() {
+            var flash = document.getElementById('flash-messages');
+            if (flash) { flash.style.display = 'none'; }
+        }, 3000);
+
+        function updateAverage(idx) {
+            var total = 0, count = 0;
+            for (var q = 1; q <= 10; q++) {
+                var selectElem = document.getElementById('rating-' + idx + '-' + q);
+                var val = parseFloat(selectElem.value);
+                if (!isNaN(val)) { total += val; count++; }
+            }
+            var avgElem = document.getElementById('avg-' + idx);
+            avgElem.textContent = (count === 10) ? (total / count).toFixed(2) : 'N/A';
+        }
+    </script>
+</body>
+</html>
