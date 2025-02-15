@@ -187,9 +187,7 @@ def student_login():
         </form>
         <hr>
         <a href="{{ url_for('admin_login') }}" class="btn btn-light">Staff Page</a>
-        <footer class="mt-4">This site is created and managed by GenrecAI. 
-          Visit our website <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
-        </footer>
+        <footer class="mt-4">These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a></footer>
         <script>
           setTimeout(function() {
             var flash = document.getElementById('flash-messages');
@@ -220,7 +218,7 @@ def admin_login():
     <html lang="en">
       <head>
         <meta charset="utf-8">
-        <title>Admin Login - Feedback App</title>
+        <title>Staff Login - Feedback App</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <style>
           body { background: #f0f8ff; }
@@ -229,7 +227,7 @@ def admin_login():
         </style>
       </head>
       <body class="container mt-4">
-        <header><h1>Admin Login</h1></header>
+        <header><h1>Staff Login</h1></header>
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             <div id="flash-messages">
@@ -242,11 +240,14 @@ def admin_login():
         <form method="post">
           <div class="form-group">
             <label>Password:</label>
-            <input type="password" class="form-control" name="password" placeholder="Enter admin password" required>
+            <input type="password" class="form-control" name="password" placeholder="Enter Staff password" required>
           </div>
           <button type="submit" class="btn btn-primary">Login</button>
         </form>
-        <footer class="mt-4"><a href="{{ url_for('student_login') }}">Back to Student Login</a></footer>
+        <footer class="mt-4">
+          <a href="{{ url_for('student_login') }}">Back to Student Login</a>
+          <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
+        </footer>
         <script>
           setTimeout(function(){
             var flash = document.getElementById('flash-messages');
@@ -277,7 +278,7 @@ def admin():
     <html lang="en">
       <head>
         <meta charset="utf-8">
-        <title>Admin - Feedback App</title>
+        <title>Staff - Feedback App</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <style>
           body { background: #f0f8ff; }
@@ -286,8 +287,8 @@ def admin():
         </style>
       </head>
       <body class="container mt-4">
-        <header><h1>VSB Engineering College - Admin Mapping</h1></header>
-        <h2 class="mt-4">Admin Page</h2>
+        <header><h1>VSB Engineering College - Staff Mapping</h1></header>
+        <h2 class="mt-4">Staff Page</h2>
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             <div id="flash-messages">
@@ -346,9 +347,7 @@ def admin():
         </form>
         <hr>
         <a href="{{ url_for('student_login') }}" class="btn btn-light">Go to Student Feedback Page</a>
-        <footer class="mt-4">This site is created and managed by GenrecAI. 
-          Visit our website <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
-        </footer>
+        <footer class="mt-4">These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a></footer>
         <script>
           setTimeout(function() {
             var flash = document.getElementById('flash-messages');
@@ -486,8 +485,7 @@ def feedback():
         </form>
         <footer class="mt-4">
           <a href="{{ url_for('student_login') }}" style="color: #fff;">Back to Student Login</a>
-          <p>This site is created and managed by GenrecAI.
-          Visit our website <a href="https://revolvo-ai.netlify.app" target="_blank" style="color: #fff; text-decoration: underline;">revolvo-ai.netlify.app</a></p>
+          <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank" style="color: #fff;">revolvo-ai.netlify.app</a>
         </footer>
         <script>
           setTimeout(function() {
@@ -592,7 +590,10 @@ def hod_login():
           </div>
           <button type="submit" class="btn btn-primary">Login</button>
         </form>
-        <footer class="mt-4"><a href="{{ url_for('student_login') }}">Back to Student Login</a></footer>
+        <footer class="mt-4">
+          <a href="{{ url_for('student_login') }}">Back to Student Login</a>
+          <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
+        </footer>
         <script>
           setTimeout(function(){
             var flash = document.getElementById('flash-messages');
@@ -659,9 +660,13 @@ def hod_select():
               {% endfor %}
             </select>
           </div>
-          <button type="submit" class="btn btn-success">Generate Report</button>
+          <button type="submit" name="action" value="generate" class="btn btn-success">Generate Report</button>
+          <button type="submit" name="action" value="download" class="btn btn-info">Download Report</button>
         </form>
-        <footer class="mt-4"><a href="{{ url_for('hod_login') }}">Back to HOD Login</a></footer>
+        <footer class="mt-4">
+          <a href="{{ url_for('hod_login') }}">Back to HOD Login</a>
+          <br>These site is Created and Managed by GenrecAI. Our Site <a href="https://revolvo-ai.netlify.app" target="_blank">revolvo-ai.netlify.app</a>
+        </footer>
         <script>
           setTimeout(function(){
             var flash = document.getElementById('flash-messages');
@@ -674,11 +679,17 @@ def hod_select():
     if request.method == 'POST':
         department = request.form.get('department')
         semester = request.form.get('semester')
+        action = request.form.get('action')
         if not department or not semester:
             flash("Please select both department and semester.", "danger")
         else:
-            return redirect(url_for('hod_report', department=department, semester=semester))
+            if action == 'download':
+                return redirect(url_for('download_report', department=department, semester=semester))
+            else:
+                return redirect(url_for('hod_report', department=department, semester=semester))
     return render_template_string(hod_select_template, departments=departments, semesters=semesters)
+
+# ... (Keep all previous code the same until the hod_report function)
 
 @app.route('/hod/report')
 def hod_report():
@@ -687,11 +698,11 @@ def hod_report():
     if not department or not semester:
         flash("Missing department or semester selection.", "danger")
         return redirect(url_for('hod_select'))
-    # Normalize selected semester (e.g., "Semester 4" -> "4")
+    
     normalized_input_semester = semester.strip()
     if normalized_input_semester.lower().startswith("semester"):
         normalized_input_semester = normalized_input_semester[len("semester"):].strip()
-    # Update mainrating.csv from ratings.csv
+    
     update_mainratings()
     data = {}
     if os.path.exists(MAINRATING_FILE):
@@ -709,24 +720,59 @@ def hod_report():
                     except (ValueError, TypeError):
                         continue
                     data[key] = overall
+    
     if not data:
         report_message = f"<h2>No rating data found for {department} - {semester}.</h2>"
         return report_message
+    
     labels = list(data.keys())
-    averages = list(data.values())
-    # Generate a neat bar chart
-    plt.figure(figsize=(12,8))
-    plt.bar(labels, averages, color='steelblue')
-    plt.xlabel("Staff (Subject)", fontsize=14)
-    plt.ylabel("Average Rating", fontsize=14)
-    plt.title(f"Average Ratings for {department} - {semester}", fontsize=16)
-    plt.xticks(rotation=45, ha='right', fontsize=12)
+    # Wrap long labels (staff name and subject)
+    import textwrap
+    labels = [textwrap.fill(label, width=15) for label in labels]
+    averages_list = list(data.values())
+    
+    # Create improved horizontal bar chart
+    if 'seaborn' in plt.style.available:
+        plt.style.use('seaborn')
+    fig, ax = plt.subplots(figsize=(14, 8))
+    
+    # Create color gradient based on rating values
+    colors = plt.cm.viridis([x/10 for x in averages_list])
+    
+    bars = ax.barh(labels, averages_list, color=colors, edgecolor='black')
+    
+    # Customize appearance
+    ax.set_xlabel('Average Rating', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Staff (Subject)', fontsize=12, fontweight='bold')
+    ax.set_title(f'Average Ratings - {department} - Semester {normalized_input_semester}\n',
+                 fontsize=16, fontweight='bold', pad=20)
+    
+    # Set x-axis limits and ticks
+    ax.set_xlim(0, 10)
+    ax.set_xticks(range(0, 11))
+    ax.xaxis.set_tick_params(labelsize=10)
+    ax.yaxis.set_tick_params(labelsize=10)
+    
+    # Add grid
+    ax.grid(True, axis='x', linestyle='--', alpha=0.7)
+    
+    # Add value labels on bars
+    for bar in bars:
+        width = bar.get_width()
+        ax.text(width + 0.1, bar.get_y() + bar.get_height()/2,
+                f'{width:.2f}',
+                va='center', ha='left', fontsize=10)
+    
     plt.tight_layout()
+    
     img = io.BytesIO()
-    plt.savefig(img, format='png')
+    plt.savefig(img, format='png', bbox_inches='tight', dpi=100)
     img.seek(0)
     graph_url = base64.b64encode(img.getvalue()).decode()
     plt.close()
+    
+    overall_avg = f"{sum(averages_list)/len(averages_list):.2f}" if averages_list else "N/A"
+    
     report_template = """
     <!doctype html>
     <html lang="en">
@@ -735,30 +781,69 @@ def hod_report():
         <title>Report for {{ department }} - {{ semester }}</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <style>
-          body { background: #f0f8ff; margin: 0; padding: 0; }
-          .container { padding: 15px; }
-          header, footer { background: #007bff; color: #fff; padding: 15px; text-align: center; }
-          footer a { color: #fff; text-decoration: underline; }
-          .graph { text-align: center; margin-top: 20px; }
-          .download-btn { margin-top: 20px; }
+          body { background: #f8f9fa; margin: 0; padding: 20px 0; }
+          .header-container { max-width: 1200px; margin: 0 auto; }
+          .graph-container { max-width: 1200px; margin: 20px auto; background: white; padding: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          .report-title { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+          .overall-average { 
+              text-align: center; 
+              font-size: 1.4rem; 
+              margin: 20px 0;
+              padding: 10px;
+              background: #007bff;
+              color: white;
+              border-radius: 5px;
+              max-width: 300px;
+              margin-left: auto;
+              margin-right: auto;
+          }
+          .download-btn {
+              text-align: center;
+              margin: 20px 0;
+          }
+          footer {
+              text-align: center;
+              margin-top: 30px;
+              padding: 20px;
+              color: #6c757d;
+          }
         </style>
       </head>
       <body>
-        <div class="container">
-          <header><h1>Report for {{ department }} - {{ semester }}</h1></header>
-          <div class="graph">
-            <img src="data:image/png;base64,{{ graph_url }}" alt="Report Graph" class="img-fluid">
+        <div class="header-container">
+          <h1 class="report-title">Faculty Performance Report</h1>
+          <div class="overall-average">
+            Overall Department Average: {{ averages }}
           </div>
-          <div class="download-btn text-center">
-            <a href="{{ url_for('download_report', department=department, semester=semester) }}" class="btn btn-primary">Download Graph</a>
-          </div>
-          <footer class="mt-4"><a href="{{ url_for('hod_select') }}">Back to Report Selection</a></footer>
         </div>
+        
+        <div class="graph-container">
+          <img src="data:image/png;base64,{{ graph_url }}" alt="Report Graph" class="img-fluid">
+        </div>
+        
+        <div class="download-btn">
+          <a href="{{ url_for('download_report', department=department, semester=semester) }}" class="btn btn-primary btn-lg">
+            Download Full Report Data
+          </a>
+        </div>
+        
+        <footer>
+          <p>Report generated on {{ date }} | These site is Created and Managed by GenrecAI</p>
+          <a href="{{ url_for('hod_select') }}" class="btn btn-outline-secondary">Back to Report Selection</a>
+        </footer>
       </body>
     </html>
     """
-    return render_template_string(report_template, department=department, semester=semester, graph_url=graph_url)
+    
+    from datetime import datetime
+    return render_template_string(report_template, 
+                                 department=department,
+                                 semester=semester,
+                                 graph_url=graph_url,
+                                 averages=overall_avg,
+                                 date=datetime.now().strftime("%Y-%m-%d %H:%M"))
 
+# ... (Keep the rest of the code the same)
 @app.route('/hod/download_report')
 def download_report():
     department = request.args.get('department')
@@ -766,10 +851,13 @@ def download_report():
     if not department or not semester:
         flash("Missing department or semester selection.", "danger")
         return redirect(url_for('hod_select'))
+    
     normalized_input_semester = semester.strip()
     if normalized_input_semester.lower().startswith("semester"):
         normalized_input_semester = normalized_input_semester[len("semester"):].strip()
+    
     update_mainratings()
+    
     data = {}
     if os.path.exists(MAINRATING_FILE):
         with open(MAINRATING_FILE, newline='', encoding='utf-8') as f:
@@ -787,23 +875,45 @@ def download_report():
                         continue
                     data[key] = overall
     if not data:
-        flash("No rating data found for report.", "danger")
+        flash("No rating data found for the selected department and semester.", "danger")
         return redirect(url_for('hod_select'))
+    
     labels = list(data.keys())
-    averages = list(data.values())
-    plt.figure(figsize=(12,8))
-    plt.bar(labels, averages, color='steelblue')
-    plt.xlabel("Staff (Subject)", fontsize=14)
-    plt.ylabel("Average Rating", fontsize=14)
-    plt.title(f"Average Ratings for {department} - {semester}", fontsize=16)
-    plt.xticks(rotation=45, ha='right', fontsize=12)
+    import textwrap
+    labels = [textwrap.fill(label, width=15) for label in labels]
+    averages_list = list(data.values())
+    
+    if 'seaborn' in plt.style.available:
+        plt.style.use('seaborn')
+    fig, ax = plt.subplots(figsize=(14, 8))
+    colors = plt.cm.viridis([x/10 for x in averages_list])
+    bars = ax.barh(labels, averages_list, color=colors, edgecolor='black')
+    ax.set_xlabel('Average Rating', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Staff (Subject)', fontsize=12, fontweight='bold')
+    ax.set_title(f'Average Ratings - {department} - Semester {normalized_input_semester}\n',
+                 fontsize=16, fontweight='bold', pad=20)
+    ax.set_xlim(0, 10)
+    ax.set_xticks(range(0, 11))
+    ax.xaxis.set_tick_params(labelsize=10)
+    ax.yaxis.set_tick_params(labelsize=10)
+    ax.grid(True, axis='x', linestyle='--', alpha=0.7)
+    for bar in bars:
+        width = bar.get_width()
+        ax.text(width + 0.1, bar.get_y() + bar.get_height()/2,
+                f'{width:.2f}', va='center', ha='left', fontsize=10)
     plt.tight_layout()
+    
+    # Save the graph to a BytesIO stream and return it as a downloadable PNG image
     img = io.BytesIO()
-    plt.savefig(img, format='png')
+    plt.savefig(img, format='png', bbox_inches='tight', dpi=100)
     img.seek(0)
     plt.close()
-    return app.response_class(img.getvalue(), mimetype='image/png',
-                              headers={"Content-Disposition": "attachment;filename=report.png"})
+    
+    from flask import send_file
+    safe_department = department.replace(' ', '_').replace('/', '_')
+    safe_semester = semester.replace(' ', '_').replace('/', '_')
+    filename = f"report_{safe_department}_{safe_semester}.png"
+    return send_file(img, mimetype='image/png', as_attachment=True, download_name=filename)
 
 if __name__ == '__main__':
     # Create CSV files if they don't exist
@@ -821,4 +931,70 @@ if __name__ == '__main__':
             with open(file, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
                 writer.writerow(headers)
+
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+                
+
+                
     app.run(debug=True)
