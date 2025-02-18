@@ -84,13 +84,9 @@
         <a href="{{ url_for('hod.download_report', department=department, semester=semester) }}" class="btn btn-primary btn-lg">
             Download Report Data (CSV)
         </a>
-        <form action="{{ url_for('hod.archive_data') }}" method="post" style="display: inline;">
-            <input type="hidden" name="department" value="{{ department }}">
-            <input type="hidden" name="semester" value="{{ semester }}">
-            <button type="submit" class="btn btn-warning btn-lg" onclick="return confirm('This will archive current data and reset the system. Are you sure?')">
-                Save All Changes & Discard
-            </button>
-        </form>
+        <a href="{{ url_for('hod.download_graph', department=department, semester=semester) }}" class="btn btn-success btn-lg">
+            Download Graph
+        </a>
     </div>
 
     <footer>
